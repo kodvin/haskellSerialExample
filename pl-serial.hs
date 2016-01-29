@@ -7,6 +7,7 @@ import Data.Maybe
 import Control.Concurrent
 import Data.Char (isSpace)
 import Data.Time.Clock.POSIX
+import Data.Time
 import System.Directory
 
 
@@ -55,36 +56,37 @@ getSerialInterface =
                                     flowControl = NoFlowControl,
                                     timeout = 10 } 
 
-handleReceivedValue :: String -> String -> IO ()                        
-handleReceivedValue line filePath = do
+handleReceivedValue :: String -> String -> Integer -> IO ()                        
+handleReceivedValue line filePath currentMillis = do
         let value = (rstrip line)
         time <- getTime 
-        saveData filePath (show time) value
+        saveData filePath (show $ time - currentMillis) value
         print value
 
 -- main loop for reading serial port and checking input from keyboard
 -- loop stops after "q" is entered
 -- is something is entered we do not save in this iteration
-looping:: SerialPort -> String -> IO ()
-looping s filePath = do 
+looping:: SerialPort -> String -> Integer -> IO ()
+looping s filePath currentMillis = do 
   line <- readLine s
   a <- ifReadyDo stdin getLine
   case a of
     Just "q" -> do return ()
     Just a -> do
         print a
-        looping s filePath
+        looping s filePath currentMillis
     Nothing -> do 
-        handleReceivedValue line filePath
-        looping s filePath
+        handleReceivedValue line filePath currentMillis
+        looping s filePath currentMillis
 
 main = do
 s <- getSerialInterface
-time <- getTime
+time <- getCurrentTime
+currentMillis <- getTime 
 createDirectoryIfMissing True directoryName
-let filePath = "./"++directoryName++"/"++ (show time) ++ ".txt"
+let filePath = "./"++directoryName++"/"++ (take 19 $ show time) ++ ".txt"
 flush s --flush serial port so we could start fresh
-looping s filePath
+looping s filePath currentMillis
 closeSerial s
 
 
