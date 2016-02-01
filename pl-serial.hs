@@ -9,9 +9,12 @@ import Data.Char (isSpace)
 import Data.Time.Clock.POSIX
 import Data.Time
 import System.Directory
-
+import Data.Time.Format (formatTime)
 
 directoryName = "experiments"
+
+-- change port anme to your arduino port name
+serialPortName = "/dev/tty.usbmodem1421"  --linux
 
 -- linereading code borrowed from http://stackoverflow.com/questions/31678873/haskell-serial-received-data-not-printed-correctly/31684578#31684578
 -- Read a character from the serial port.
@@ -48,7 +51,7 @@ getTime = fmap (round . (*1000)) getPOSIXTime
 
 getSerialInterface:: IO SerialPort
 getSerialInterface = 
-  let port = "/dev/tty.usbmodem1421" -- Linux
+  let port = serialPortName
   in openSerial port SerialPortSettings { commSpeed = CS9600,
                                     bitsPerWord = 8,
                                     stopb = One,
@@ -79,12 +82,15 @@ looping s filePath currentMillis = do
         handleReceivedValue line filePath currentMillis
         looping s filePath currentMillis
 
+getFormatedDate = formatTime defaultTimeLocale "%F_%H.%M.%s"
+
+
 main = do
 s <- getSerialInterface
 time <- getCurrentTime
 currentMillis <- getTime 
 createDirectoryIfMissing True directoryName
-let filePath = "./"++directoryName++"/"++ (take 19 $ show time) ++ ".txt"
+let filePath = "./"++directoryName++"/"++ (take 19 $ show (getFormatedDate time)) ++ ".txt"
 flush s --flush serial port so we could start fresh
 looping s filePath currentMillis
 closeSerial s
