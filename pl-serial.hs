@@ -90,7 +90,7 @@ s <- getSerialInterface
 time <- getCurrentTime
 currentMillis <- getTime 
 createDirectoryIfMissing True directoryName
-let filePath = "./"++directoryName++"/"++ (take 19 $ show (getFormatedDate time)) ++ ".txt"
+let filePath = "./"++directoryName++"/"++ (take 19 $ getFormatedDate time) ++ ".txt"
 flush s --flush serial port so we could start fresh
 looping s filePath currentMillis
 closeSerial s
