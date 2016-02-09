@@ -13,7 +13,7 @@ import Data.Time.Format (formatTime)
 
 directoryName = "experiments"
 
--- change port anme to your arduino port name
+-- change port name to your arduino port name
 serialPortName = "/dev/tty.usbmodem1421"  --linux
 
 -- linereading code borrowed from http://stackoverflow.com/questions/31678873/haskell-serial-received-data-not-printed-correctly/31684578#31684578
