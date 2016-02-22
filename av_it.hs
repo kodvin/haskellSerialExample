@@ -14,9 +14,10 @@ removeLast xs = reverse $ drop 1 $ reverse xs
 -- provides new filname
 getNewFileName name =  (reverse $ drop 4 (reverse name)) ++ "-av_it.txt"
 
-
+--get value part form "time, value" format of the data
 getValues content = map (\line -> let [time, value] = words line in (read value::Int)) $  lines content 
 
+--get time part form "time, value" format of the data
 getTimes content = map 
     (\line -> 
         let [time, value] = words line 
@@ -27,8 +28,8 @@ getTimes content = map
 getSegment interval offeset list = drop offeset ( take (interval + offeset) $ list)
 
 -- averages vaulues for provided array with nth nearest elements, first n - 1 element is replicated
-newElements' xs interval =  [ (\xs -> (foldr (+) 0 xs) `quot` (length xs) ) $ getSegment interval x xs | x <- [0..((length xs) - interval) ]]
-newElements xs interval = (replicate (interval - 1) (head xs)) ++ (newElements' xs interval)
+newElements' xs interval =  [ (\xs -> (fromIntegral (foldr (+) 0 xs)) / (fromIntegral (length xs)) ) $ getSegment interval x xs | x <- [0..((length xs) - interval) ]]
+newElements xs interval = (replicate (interval - 1) (fromIntegral (head xs))) ++ (newElements' xs interval)
 
 
 formatContent content n = zipWith (\x y -> (show x)++ ", " ++ (show y)) (getTimes content) (newElements (getValues content) n)
@@ -45,7 +46,6 @@ proccessArgs [] = print "need more arguments"
 proccessArgs (filePath:[]) = transformFile filePath 20
 -- have enaough arguments
 proccessArgs (filePath:number:xs) =  transformFile filePath (read number::Int)
-
 
 main = do
     args <- getArgs
